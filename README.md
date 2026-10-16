@@ -4,6 +4,14 @@ A two-pane file browser for a reMarkable 2 and a Linux or Windows computer.
 I want to move a PDF over a cable without involving a cloud account. This uses
 SSH/SFTP for browsing, imports, and backups.
 
+## Windows download
+
+Grab the latest `rm2-transfer-<version>-windows.zip` from the
+[Releases](../../releases) page, unzip it anywhere, and run
+`rm2-transfer.exe` from the unzipped folder. Keep the whole folder together;
+the exe needs the DLLs next to it. Windows SmartScreen may warn about an
+unsigned exe — that's expected, there's no code signing here.
+
 ## Connect
 
 On the tablet, open **Settings → Help → Copyrights and licenses → GPLv3
@@ -86,41 +94,12 @@ dist\rm2-transfer\rm2-transfer.exe
 
 Distribute the entire `dist/rm2-transfer` directory, not just the executable.
 Linux builds depend on the host glibc baseline; build on the oldest Linux
-distribution you intend to support. The build here used Fedora 44, glibc 2.43,
-Python 3.14.3, PySide6 6.12.0, and PyInstaller 6.22.3.
+distribution you intend to support. The Windows zip on the Releases page is
+built by the GitHub Actions workflow in `.github/workflows/`, so you don't need
+a Windows box to get one.
 
-## What I actually checked
-
-The Linux commands above were run using a temporary virtual environment.
-All 14 tests passed. Tests cover import metadata and archive contents,
-cleanup after failed imports, overwrite protection, interrupted downloads,
-host-key rejection, login/network/SFTP error messages, profile password
-exclusion, malformed profiles, the connection dialog, stale directory selection,
-and UI recovery after a worker failure.
-SFTP storage is simulated in these tests; it is not a real server integration test.
-
-Both source and packaged Linux builds passed this headless launch check:
-
-```sh
-QT_QPA_PLATFORM=offscreen python app.py --smoke-test
-QT_QPA_PLATFORM=offscreen dist/rm2-transfer/rm2-transfer --smoke-test
-```
-
-That opens the main window and connection dialog, then exits. It does not prove
-desktop rendering works on every Wayland/X11 setup. Windows builds have not been
-run. No tablet responded to the USB SSH reachability check; Wi-Fi hardware testing
-was not performed.
-
-## Limits that matter
-
-**Untested on device.** In particular, firmware-specific PDF/EPUB indexing,
-cloud sync behavior, host-key negotiation with the tablet's SSH server, notebook
-restoration, and the restart command still need hardware verification.
-The importer writes the traditional xochitl document format. New firmware may
-require different metadata; a successful SFTP copy alone is not proof that the
-document appears in the library.
-
-Backups taken while a notebook is being edited or synced are not atomic snapshots.
-Close it and wait for sync to settle first. ZIP files contain native notebook
-data and may contain personal notes. Symlinks in notebook archives are rejected.
-There is no PDF rendering, folder import, recursive raw upload, or cloud API.
+A heads up on what's actually been tried: the Linux build, tests, and headless
+launch all run fine here. I don't have a tablet in front of me right now, so
+the device side — library indexing on current firmware, sync behavior, notebook
+restore — is unverified. Back up before trusting an import, and close the
+notebook before zipping it so you don't grab a half-written snapshot.
